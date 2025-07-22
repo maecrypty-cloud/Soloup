@@ -1,12 +1,14 @@
-// home_screen.dart import 'package:flutter/material.dart'; import '../widgets/task_card.dart'; import '../widgets/level_badge.dart'; import '../widgets/daily_summary.dart'; import '../models/task.dart';
+import 'package:flutter/material.dart'; import 'task.dart'; import 'add_task_screen.dart'; import 'task_card.dart';
 
 class HomeScreen extends StatefulWidget { const HomeScreen({super.key});
 
 @override State<HomeScreen> createState() => _HomeScreenState(); }
 
-class _HomeScreenState extends State<HomeScreen> { List<Task> tasks = [ Task( title: "Wake Up at 6 AM", durationMinutes: 10, category: TaskCategory.urgentImportant, ), Task( title: "30-min Exercise", durationMinutes: 30, category: TaskCategory.importantNotUrgent, ), Task( title: "Study for 2 hrs", durationMinutes: 120, category: TaskCategory.urgentImportant, ), Task( title: "Anime episode", durationMinutes: 25, category: TaskCategory.notUrgentNotImportant, ), ];
+class _HomeScreenState extends State<HomeScreen> { List<Task> tasks = [];
 
-void toggleTaskDone(Task task) { setState(() { task.isCompleted = !task.isCompleted; }); }
+void _addNewTask(Task task) { setState(() { tasks.add(task); }); }
 
-@override Widget build(BuildContext context) { return Scaffold( appBar: AppBar( title: const Text("Solo Up"), actions: const [LevelBadge(level: 2)], ), body: Column( children: [ const DailySummary(), Expanded( child: ListView.builder( itemCount: tasks.length, itemBuilder: (context, index) => TaskCard( task: tasks[index], onChanged: () => toggleTaskDone(tasks[index]), ), ), ), ], ), ); } }
+void _navigateToAddTask() async { final Task? newTask = await Navigator.push( context, MaterialPageRoute( builder: (context) => AddTaskScreen(), ), ); if (newTask != null) { _addNewTask(newTask); } }
+
+@override Widget build(BuildContext context) { return Scaffold( appBar: AppBar( title: const Text('Solo Up'), backgroundColor: Colors.deepPurpleAccent, ), body: tasks.isEmpty ? const Center( child: Text( 'No tasks yet. Add one!', style: TextStyle(color: Colors.white), ), ) : ListView.builder( itemCount: tasks.length, itemBuilder: (context, index) { return TaskCard( task: tasks[index], onComplete: () { setState(() { tasks[index].markCompleted(); }); }, ); }, ), floatingActionButton: FloatingActionButton( backgroundColor: Colors.purpleAccent, onPressed: _navigateToAddTask, child: const Icon(Icons.add), ), ); } }
 
